@@ -1,0 +1,204 @@
+while (!player1){
+    
+    var player1 = prompt('Player One: Enter your name. You will be red.');
+};
+var player1Color = 'red';
+
+while (!player2){
+
+    var player2 = prompt('Player Two: Enter your name. You will be yellow.');
+};
+var player2Color = 'yellow';
+
+
+
+var tableRow = document.getElementsByTagName('tr');
+var tableData = document.getElementsByTagName('td');
+var playerTurn = document.querySelector('.player-turn');
+console.log(tableRow, tableData, playerTurn);
+const slots = document.querySelectorAll('.slot');
+const resetBtn = document.querySelector('.reset');
+
+let powerUps = [0,1];
+
+var currentPlayer = 1;
+let winner;
+let pick2 = false;
+let anvil = false;
+
+playerTurn.textContent = `${player1}'s turn!`
+
+for (i = 0; i < tableData.length; i ++){
+    tableData[i].addEventListener('click', (e) =>{
+        console.log(`${e.target.parentElement.rowIndex},${e.target.cellIndex}`)
+    });
+};
+
+
+// Functions
+
+
+function choosePowerup(x){
+    if (x==2){
+        anvil = true;
+    } else if (x==1){
+        pick2 = true
+    }
+}
+
+function changeColor(e){
+    let column = e.target.cellIndex;
+    let row = [];
+    for (i = 5; i > -1; i--){
+        if (tableRow[i].children[column].style.backgroundColor == 'white'){
+            row.push(tableRow[i].children[column]);
+
+            if (currentPlayer === 1){
+                
+                if(anvil == true){
+                    console.log("ayo");
+                    for(let i = 0; i < 5; i++){
+                        tableRow[i].children[e.target.cellIndex].style.backgroundColor = 'white';
+                    }
+                    tableRow[5].children[e.target.cellIndex].style.backgroundColor = 'red';
+                    for (let j = 4; j > -1; j--){
+                        tableRow[e.target.parentElement.rowIndex].children[j].style.backgroundColor = 'white';
+                        console.log("ayo");
+                    }
+                    anvil = false;
+                    console.log(anvil);
+                    return currentPlayer = 2;
+                }
+                else{
+                        row[0].style.backgroundColor = 'red';
+                    
+                    console.log(row);
+                    if (horizontalCheck() || verticalCheck() || diagonalCheck() || diagonalCheck2()){
+                        playerTurn.textContent = `${player1} WINS!!`;
+                        playerTurn.style.color = player1Color;
+                        return alert(`${player1} WINS!!`);
+                    }else if (drawCheck()){
+                        playerTurn.textContent = 'DRAW!';
+                        return alert('DRAW!');
+                    }else{
+                        playerTurn.textContent = `${player2}'s turn`
+                        
+                        if(pick2==true){
+                            pick2 = false;
+                            document.getElementById("pick2").innerHTML = ""
+                            return currentPlayer = 1;
+                        }
+                        
+                        return currentPlayer = 2;
+                    }
+                }
+
+            }else if (currentPlayer===2){
+
+                if(anvil == true){
+                    console.log("ayo");
+                    for(let i = 0; i < 5; i++){
+                        tableRow[i].children[e.target.cellIndex].style.backgroundColor = 'white';
+                    }
+                    tableRow[5].children[e.target.cellIndex].style.backgroundColor = 'yellow';
+                    for (let j = 4; j > -1; j--){
+                        console.log("ayo");
+                        tableRow[e.target.parentElement.rowIndex].children[j].style.backgroundColor = 'white';
+                    }
+                
+                    anvil = false;
+                    return currentPlayer = 1;
+                }
+                else{
+
+                    row[0].style.backgroundColor = 'yellow';
+                    if (horizontalCheck() || verticalCheck() || diagonalCheck() || diagonalCheck2()){
+                        playerTurn.textContent = `${player2} WINS!!`;
+                        playerTurn.style.color = player2Color;
+                        return alert(`${player2} WINS!!`);
+                    }else if (drawCheck()){
+                        playerTurn.textContent = 'DRAW!';
+                        return alert('DRAW!');
+                    }else{
+                        playerTurn.textContent = `${player1}'s turn`;
+                        return currentPlayer = 1;
+                    }
+                }
+            }
+        }
+    }
+}
+
+Array.prototype.forEach.call(tableData, (cell) => {
+    cell.addEventListener('click', changeColor);
+    cell.style.backgroundColor = 'white';
+});
+
+function colorMatchCheck(one, two, three, four){
+    return (one === two && one === three && one === four && one !== 'white' && one !== undefined);
+}
+
+function horizontalCheck(){
+    for (let row = 0; row < tableRow.length; row++){
+        for (let col =0; col < 4; col++){
+           if (colorMatchCheck(tableRow[row].children[col].style.backgroundColor,tableRow[row].children[col+1].style.backgroundColor, 
+                                tableRow[row].children[col+2].style.backgroundColor, tableRow[row].children[col+3].style.backgroundColor)){
+               return true;
+           }
+        }
+    }
+}
+
+function verticalCheck(){
+    for (let col = 0; col < 7; col++){
+        for (let row = 0; row < 3; row++){
+            if (colorMatchCheck(tableRow[row].children[col].style.backgroundColor, tableRow[row+1].children[col].style.backgroundColor,
+                                tableRow[row+2].children[col].style.backgroundColor,tableRow[row+3].children[col].style.backgroundColor)){
+                return true;
+            };
+        }   
+    }
+}
+
+function diagonalCheck(){
+    for(let col = 0; col < 4; col++){
+        for (let row = 0; row < 3; row++){
+            if (colorMatchCheck(tableRow[row].children[col].style.backgroundColor, tableRow[row+1].children[col+1].style.backgroundColor,
+                tableRow[row+2].children[col+2].style.backgroundColor,tableRow[row+3].children[col+3].style.backgroundColor)){
+                    return true;
+                }
+            }
+        }
+
+}
+
+function diagonalCheck2(){
+    for(let col = 0; col < 4; col++){
+        for (let row = 5; row > 2; row--){
+            if (colorMatchCheck(tableRow[row].children[col].style.backgroundColor, tableRow[row-1].children[col+1].style.backgroundColor,
+                tableRow[row-2].children[col+2].style.backgroundColor,tableRow[row-3].children[col+3].style.backgroundColor)){
+                    return true;
+            }
+        }
+    }
+}
+
+function drawCheck(){
+    let fullSlot = []
+    for (i=0; i < tableData.length; i++){
+        if (tableData[i].style.backgroundColor !== 'white'){
+            fullSlot.push(tableData[i]);
+        }
+    }
+    if (fullSlot.length === tableData.length){
+        return true;
+    }
+}
+
+resetBtn.addEventListener('click', () => {
+    slots.forEach(slot => {
+        slot.style.backgroundColor = 'white';
+    });
+    playerTurn.style.color = 'black';
+    return (currentPlayer === 1 ? playerTurn.textContent = `${player1}'s turn` : playerTurn.textContent = `${player2}'s turn`);
+});
